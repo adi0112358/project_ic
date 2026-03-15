@@ -1,0 +1,19 @@
+thresholds:
+  hba1c_diabetes: 6.5
+  hba1c_prediabetes: 5.7
+  fpg_diabetes_mg_dl: 126
+  fpg_prediabetes_mg_dl: 100
+  ogtt_diabetes_mg_dl: 200
+  ogtt_prediabetes_mg_dl: 140
+
+risk_weights:
+  diabetes: 0.35
+  prediabetes: 0.15
+  hba1c_high: 0.2
+  hba1c_mid: 0.1
+  crp: 0.1
+  nlr: 0.1
+  il6: 0.05
+  tnf_alpha: 0.05
+  beta_hydroxybutyrate: 0.05
+  urine_albumin: 0.05

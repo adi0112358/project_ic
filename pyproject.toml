@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project-ic"
+version = "0.1.0"
+description = "Fungal infection classifier for type 2 diabetes"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+dependencies = [
+  "pandas>=2.2.2",
+  "numpy>=1.26.4",
+  "scikit-learn>=1.5.0",
+  "joblib>=1.4.2",
+  "pillow>=10.3.0",
+  "fastapi>=0.111.0",
+  "uvicorn>=0.30.0",
+  "pydantic>=2.7.0"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

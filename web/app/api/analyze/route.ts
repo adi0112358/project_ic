@@ -1,11 +1,21 @@
 import { NextResponse } from "next/server";
 import { analyzeReport } from "@/lib/analyze";
 import { runPythonInference } from "@/lib/pythonInference";
+import { extractTextFromBuffer } from "@/lib/ocr";
 
 export const runtime = "nodejs";
 
+export async function GET() {
+  return NextResponse.json({ ok: true, message: "analyze route ready" });
+}
+
 export async function POST(req: Request) {
-  const form = await req.formData();
+  let form: FormData;
+  try {
+    form = await req.formData();
+  } catch (err) {
+    return NextResponse.json({ error: "Invalid form data" }, { status: 400 });
+  }
   const reportText = form.get("reportText");
   const reportFile = form.get("reportFile") as File | null;
   const imageFile = form.get("imageFile") as File | null;
@@ -13,8 +23,10 @@ export async function POST(req: Request) {
   let text = typeof reportText === "string" ? reportText : "";
   if (!text && reportFile) {
     try {
-      text = await reportFile.text();
-    } catch {
+      const buffer = Buffer.from(await reportFile.arrayBuffer());
+      const ocrText = await extractTextFromBuffer(buffer, reportFile.type || "");
+      text = ocrText || "";
+    } catch (err) {
       text = "";
     }
   }
@@ -23,7 +35,7 @@ export async function POST(req: Request) {
   let result: any = null;
 
   if (!text) {
-    warnings.push("No report text found. Provide report text or a text-based report file.");
+    warnings.push("No report text found after OCR. Provide report text or a readable file.");
   }
   if (!imageFile) {
     warnings.push("No image uploaded. Image-based type inference will be limited.");
@@ -34,10 +46,11 @@ export async function POST(req: Request) {
 
   if (inferenceApi && text) {
     try {
+      const apiBase = inferenceApi.replace(/\/+$/, "");
       const imageBuffer = imageFile ? Buffer.from(await imageFile.arrayBuffer()) : null;
       const imageBase64 = imageBuffer ? imageBuffer.toString("base64") : null;
 
-      const apiResponse = await fetch(`${inferenceApi.replace(/\\/$/, "")}/analyze`, {
+      const apiResponse = await fetch(`${apiBase}/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
